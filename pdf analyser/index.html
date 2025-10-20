@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Summarizer using AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background-color: #f1f5f9;
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            color: var(--dark);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, var(--primary), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .upload-area.active {
+            border-color: var(--primary);
+            background-color: rgba(37, 99, 235, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .upload-hint {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .browse-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .browse-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: var(--secondary);
+        }
+
+        .query-section {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .example-queries {
+            font-style: italic;
+            color: var(--secondary);
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            background-color: #f8fafc;
+            padding: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .query-input {
+            width: 100%;
+            padding: 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 1.5rem;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .query-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .summarize-btn {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            width: 100%;
+            transition: background-color 0.2s;
+            margin-top: auto;
+        }
+
+        .summarize-btn:hover {
+            background-color: #0da271;
+        }
+
+        .output-section {
+            margin-top: 1rem;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .output-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .output-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: var(--secondary);
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #f1f5f9;
+        }
+
+        .output-content {
+            background-color: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 200px;
+            color: var(--dark);
+            line-height: 1.7;
+        }
+
+        .output-placeholder {
+            color: var(--secondary);
+            font-style: italic;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .processing-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(37, 99, 235, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: var(--secondary);
+            font-size: 0.875rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1> AI PDF Summarizer </h1>
+            <p class="subtitle">Upload your PDF and get AI-powered summaries instantly</p>
+        </header>
+
+        <div class="main-content">
+            <div class="card upload-section">
+                <h2 class="section-title">Upload Your PDF</h2>
+                <div class="upload-area" id="dropArea">
+                    <div class="upload-icon">📄</div>
+                    <p class="upload-text">Drag & Drop your PDF here</p>
+                    <p class="upload-hint">or</p>
+                    <button class="browse-btn">Browse Files</button>
+                    <p class="file-info">Supported: PDF (Max: 10MB)</p>
+                </div>
+                <div id="fileDetails" class="file-info hidden"></div>
+            </div>
+
+            <div class="card query-section">
+                <h2 class="section-title">Ask About Your PDF</h2>
+                <p class="example-queries">e.g. Summarize the key findings or What is the main conclusion?</p>
+                <input type="text" class="query-input" id="queryInput" placeholder="Enter your question here...">
+                <button class="summarize-btn" id="summarizeBtn">Summarize</button>
+            </div>
+        </div>
+
+        <div class="card output-section">
+            <div class="output-header">
+                <h2 class="output-title">Summarized Output</h2>
+                <div class="output-actions">
+                    <button class="action-btn" id="copyBtn">Copy</button>
+                    <button class="action-btn" id="downloadBtn">Download</button>
+                </div>
+            </div>
+            <div class="output-content" id="outputContent">
+                <div class="output-placeholder">
+                    Your summarized content will appear here. Our advanced AI algorithms extract key information and generate concise summaries.
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2023 PDF Summarizer | Powered by Advanced AI Algorithms</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('dropArea');
+            const browseBtn = document.querySelector('.browse-btn');
+            const fileInput = document.createElement('input');
+            const fileDetails = document.getElementById('fileDetails');
+            const queryInput = document.getElementById('queryInput');
+            const summarizeBtn = document.getElementById('summarizeBtn');
+            const outputContent = document.getElementById('outputContent');
+            const copyBtn = document.getElementById('copyBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            
+            fileInput.type = 'file';
+            fileInput.accept = '.pdf';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName', preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.add('active'), false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, () => dropArea.classList.remove('active'), false);
+            });
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            }
+            
+            // Browse button functionality
+            browseBtn.addEventListener('click', () => fileInput.click());
+            
+            fileInput.addEventListener('change', function() {
+                handleFiles(this.files);
+            });
+            
+            function handleFiles(files) {
+                if (files.length > 0) {
+                    const file = files[0];
+                    if (file.type === 'application/pdf') {
+                        fileDetails.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+                        fileDetails.classList.remove('hidden');
+                        
+                        // In a real app, you would upload the file here
+                        console.log('PDF file selected:', file.name);
+                    } else {
+                        alert('Please select a valid PDF file');
+                    }
+                }
+            }
+            
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+            
+            // Summarize button functionality
+            summarizeBtn.addEventListener('click', function() {
+                const query = queryInput.value.trim();
+                
+                if (!fileInput.files.length && !fileDetails.textContent) {
+                    alert('Please upload a PDF file first');
+                    return;
+                }
+                
+                if (query === '') {
+                    alert('Please enter a question or query');
+                    return;
+                }
+                
+                // Show processing indicator
+                outputContent.innerHTML = `
+                    <div class="processing-indicator">
+                        <div class="spinner"></div>
+                        <span>Processing your request...</span>
+                    </div>
+                `;
+                
+                // Simulate API call delay
+                setTimeout(() => {
+                    // In a real application, you would get the actual summary from your backend
+                    const sampleSummary = `
+                        <p><strong>Query:</strong> "${query}"</p>
+                        <br>
+                        <p><strong>Summary:</strong> The document discusses the implementation of advanced AI algorithms for PDF content analysis. Key findings indicate that these algorithms can effectively extract key information and generate concise summaries with high accuracy. The main conclusion is that AI-powered summarization significantly reduces reading time while maintaining content integrity.</p>
+                        <br>
+                        <p><strong>Key Points:</strong></p>
+                        <ul>
+                            <li>AI algorithms achieve 92% accuracy in information extraction</li>
+                            <li>Processing time reduced by 65% compared to manual summarization</li>
+                            <li>The system supports multiple document formats with PDF being the primary focus</li>
+                            <li>Users report 85% satisfaction with summary quality</li>
+                        </ul>
+                    `;
+                    
+                    outputContent.innerHTML = sampleSummary;
+                }, 2000);
+            });
+            
+            // Copy functionality
+            copyBtn.addEventListener('click', function() {
+                const textToCopy = outputContent.innerText;
+                
+                if (!textToCopy || textToCopy.includes('Your summarized content will appear here')) {
+                    alert('No content to copy');
+                    return;
+                }
+                
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        // Visual feedback
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = 'Copied!';
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        alert('Failed to copy text to clipboard');
+                    });
+            });
+            
+            // Download functionality
+            downloadBtn.addEventListener('click', function() {
+                const textToDownload = outputContent.innerText;
+                
+                if (!textToDownload || textToDownload.includes('Your summarized content will appear here')) {
+                    alert('No content to download');
+                    return;
+                }
+                
+                const blob = new Blob([textToDownload], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'pdf-summary.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        });
+    </script>
+</body>
+</html>
