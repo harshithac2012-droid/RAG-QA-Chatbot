@@ -32,6 +32,51 @@
             flex-direction: column;
         }
 
+        /* Navigation Bar */
+        nav {
+            background: white;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--primary), #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -69,6 +114,14 @@
 
         @media (max-width: 768px) {
             .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .contribution-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -284,6 +337,50 @@
             }
         }
 
+        /* Contribution Section */
+        .contribution-section {
+            margin-top: 2rem;
+        }
+
+        .contribution-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .contributor-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.05));
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .contributor-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .contributor-id {
+            color: var(--secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .contributor-institution {
+            color: var(--primary);
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .contributor-role {
+            color: var(--dark);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
         footer {
             text-align: center;
             margin-top: 3rem;
@@ -293,60 +390,290 @@
             border-top: 1px solid var(--border);
         }
 
+        .footer-love {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .heart {
+            color: #ef4444;
+            font-size: 1rem;
+        }
+
+        .powered-by {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
         .hidden {
             display: none;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* RAG Info Styles */
+        .info-box {
+            background-color: #f8fafc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 28px;
+            font-weight: 600;
+            margin-right: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .step-container {
+            margin-bottom: 1.25rem;
+        }
+
+        .step-content {
+            display: flex;
+            align-items: start;
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-description {
+            color: var(--secondary);
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1> AI PDF Summarizer </h1>
-            <p class="subtitle">Upload your PDF and get AI-powered summaries instantly</p>
-        </header>
-
-        <div class="main-content">
-            <div class="card upload-section">
-                <h2 class="section-title">Upload Your PDF</h2>
-                <div class="upload-area" id="dropArea">
-                    <div class="upload-icon">📄</div>
-                    <p class="upload-text">Drag & Drop your PDF here</p>
-                    <p class="upload-hint">or</p>
-                    <button class="browse-btn">Browse Files</button>
-                    <p class="file-info">Supported: PDF (Max: 10MB)</p>
-                </div>
-                <div id="fileDetails" class="file-info hidden"></div>
-            </div>
-
-            <div class="card query-section">
-                <h2 class="section-title">Ask About Your PDF</h2>
-                <p class="example-queries">e.g. Summarize the key findings or What is the main conclusion?</p>
-                <input type="text" class="query-input" id="queryInput" placeholder="Enter your question here...">
-                <button class="summarize-btn" id="summarizeBtn">Summarize</button>
-            </div>
+    <!-- Navigation Bar -->
+    <nav>
+        <div class="nav-container">
+            <div class="nav-logo">📄 AI PDF Summarizer</div>
+            <ul class="nav-links">
+                <li><a onclick="showPage('home')">Home</a></li>
+                <li><a onclick="showPage('about')">About RAG</a></li>
+            </ul>
         </div>
+    </nav>
 
-        <div class="card output-section">
-            <div class="output-header">
-                <h2 class="output-title">Summarized Output</h2>
-                <div class="output-actions">
-                    <button class="action-btn" id="copyBtn">Copy</button>
-                    <button class="action-btn" id="downloadBtn">Download</button>
+    <!-- Home Page -->
+    <div id="homePage" class="page active">
+        <div class="container">
+            <header>
+                <h1>🤖 AI PDF Summarizer</h1>
+                <p class="subtitle">Upload your PDF and get AI-powered summaries instantly</p>
+            </header>
+
+            <div class="main-content">
+                <div class="card upload-section">
+                    <h2 class="section-title">Upload Your PDF</h2>
+                    <div class="upload-area" id="dropArea">
+                        <div class="upload-icon">📄</div>
+                        <p class="upload-text">Drag & Drop your PDF here</p>
+                        <p class="upload-hint">or</p>
+                        <button class="browse-btn">Browse Files</button>
+                        <p class="file-info">Supported: PDF (Max: 10MB)</p>
+                    </div>
+                    <div id="fileDetails" class="file-info hidden"></div>
+                </div>
+
+                <div class="card query-section">
+                    <h2 class="section-title">Ask About Your PDF</h2>
+                    <p class="example-queries">e.g. Summarize the key findings or What is the main conclusion?</p>
+                    <input type="text" class="query-input" id="queryInput" placeholder="Enter your question here...">
+                    <button class="summarize-btn" id="summarizeBtn">Summarize</button>
                 </div>
             </div>
-            <div class="output-content" id="outputContent">
-                <div class="output-placeholder">
-                    Your summarized content will appear here. Our advanced AI algorithms extract key information and generate concise summaries.
+
+            <div class="card output-section">
+                <div class="output-header">
+                    <h2 class="output-title">Summarized Output</h2>
+                    <div class="output-actions">
+                        <button class="action-btn" id="copyBtn">Copy</button>
+                        <button class="action-btn" id="downloadBtn">Download</button>
+                    </div>
+                </div>
+                <div class="output-content" id="outputContent">
+                    <div class="output-placeholder">
+                        Your summarized content will appear here. Our advanced AI algorithms extract key information and generate concise summaries.
+                    </div>
                 </div>
             </div>
+
+            <footer>
+                <p>© 2023 PDF Summarizer | Powered by Advanced AI Algorithms</p>
+            </footer>
         </div>
+    </div>
 
-        <footer>
-            <p>© 2023 PDF Summarizer | Powered by Advanced AI Algorithms</p>
-        </footer>
+    <!-- About RAG Page -->
+    <div id="aboutPage" class="page">
+        <div class="container">
+            <header>
+                <h1>About RAG Technology</h1>
+                <p class="subtitle">Understanding Retrieval-Augmented Generation</p>
+            </header>
+
+            <div class="card">
+                <h2 class="section-title">What is RAG?</h2>
+                <p style="margin-bottom: 1.5rem; line-height: 1.8;">
+                    Retrieval-Augmented Generation (RAG) is an advanced AI technique that combines the power of large language models with external knowledge retrieval. This hybrid approach enables AI systems to provide more accurate, up-to-date, and contextually relevant responses by grounding answers in specific document content.
+                </p>
+
+                <h3 style="font-size: 1.15rem; font-weight: 600; margin-bottom: 1.5rem; color: var(--dark);">How RAG Chatbot Works</h3>
+                
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">1</span>
+                        <div class="step-text">
+                            <div class="step-title">Document Ingestion & Processing</div>
+                            <div class="step-description">Your PDF document is uploaded and parsed. The system extracts all text content and breaks it down into smaller, meaningful chunks (typically paragraphs or sections) to make processing more efficient.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">2</span>
+                        <div class="step-text">
+                            <div class="step-title">Vector Embedding Creation</div>
+                            <div class="step-description">Each text chunk is converted into a mathematical representation called a vector embedding. These embeddings capture the semantic meaning of the text, allowing the system to understand context and relationships between different parts of your document.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">3</span>
+                        <div class="step-text">
+                            <div class="step-title">Vector Storage</div>
+                            <div class="step-description">The embeddings are stored in a specialized vector database that enables fast similarity searches. This database is optimized for finding relevant information quickly, even across large documents.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">4</span>
+                        <div class="step-text">
+                            <div class="step-title">Query Processing</div>
+                            <div class="step-description">When you ask a question, your query is also converted into a vector embedding using the same process, ensuring compatibility with the stored document embeddings.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">5</span>
+                        <div class="step-text">
+                            <div class="step-title">Semantic Search & Retrieval</div>
+                            <div class="step-description">The system performs a similarity search in the vector database to find the most relevant chunks from your document that match your question. This goes beyond simple keyword matching to understand the actual meaning and context.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">6</span>
+                        <div class="step-text">
+                            <div class="step-title">Context Assembly</div>
+                            <div class="step-description">The top matching chunks are retrieved and assembled to provide comprehensive context for your question. This ensures the AI has all relevant information needed to generate an accurate answer.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="step-container">
+                    <div class="step-content">
+                        <span class="step-number">7</span>
+                        <div class="step-text">
+                            <div class="step-title">Answer Generation</div>
+                            <div class="step-description">The retrieved context is fed to a large language model along with your original question. The AI generates a comprehensive, accurate answer that's grounded in your document's actual content, significantly reducing hallucinations and ensuring factual accuracy.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-box" style="margin-top: 2rem;">
+                    <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--dark);">Key Benefits</h3>
+                    <ul style="margin-left: 1.5rem; line-height: 1.8; color: var(--secondary);">
+                        <li>Provides accurate answers grounded in your specific documents</li>
+                        <li>Reduces AI hallucinations by using real document content</li>
+                        <li>Enables efficient question-answering on large documents</li>
+                        <li>Maintains context and relevance throughout conversations</li>
+                        <li>Scales effectively for enterprise document processing</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Contribution Section -->
+            <div class="card contribution-section">
+                <h2 class="section-title">Contributors</h2>
+                <div class="contribution-grid">
+                    <div class="contributor-card">
+                        <div class="contributor-name">Harshitha C</div>
+                        <div class="contributor-id">1GA24AI021</div>
+                        <div class="contributor-institution">Global Academy of Technology</div>
+                        <div class="contributor-role">Contributed in making the frontend part</div>
+                    </div>
+                    <div class="contributor-card">
+                        <div class="contributor-name">Sachetha V</div>
+                        <div class="contributor-id">Student ID</div>
+                        <div class="contributor-institution">Global Academy of Technology</div>
+                        <div class="contributor-role">Contributed in making the backend which includes RAG QA Chatbot</div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <p>© 2023 PDF Summarizer</p>
+                <div class="footer-love">
+                    <span>Made with</span>
+                    <span class="heart">❤️</span>
+                    <span>| Powered by</span>
+                    <span class="powered-by">Google Cloud</span>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <script>
+        // Page navigation
+        function showPage(page) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(p => p.classList.remove('active'));
+            
+            if (page === 'home') {
+                document.getElementById('homePage').classList.add('active');
+            } else if (page === 'about') {
+                document.getElementById('aboutPage').classList.add('active');
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const dropArea = document.getElementById('dropArea');
             const browseBtn = document.querySelector('.browse-btn');
@@ -365,7 +692,7 @@
 
             // Drag and drop functionality
             ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                dropArea.addEventListener(eventName', preventDefaults, false);
+                dropArea.addEventListener(eventName, preventDefaults, false);
             });
             
             function preventDefaults(e) {
